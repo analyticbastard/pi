@@ -1,20 +1,20 @@
 (ns pi.core)
 
-(defn str-to-char-count [s]
-  (->> s
-       frequencies
-       (remove #(<= (second %) 1))
-       ))
-
 (defn tag [tag-id seq-vecs]
+  """Tag tuples with string id e.g.: [\b 5] to [1 \b 5], for id, character and count"""
   (map #(cons tag-id %) seq-vecs))
 
 (defn str-to-char-count-and-tag [tag-id s]
+  """Convert a string to a sequence of triplets tagged by the string's id
+     e.g.: id=1 string='bbbbb' to [1 \b 5]"""
   (->> s
-       str-to-char-count
+       frequencies
+       (remove #(<= (second %) 1))
        (tag tag-id)))
 
 (defn mix-closure [equal-count-resolution-fn]
+  """This is a closure which defines how we will output ids for characters with the same
+     number of occurrences"""
   (fn [s1 s2 & args]
     (let [sort-within-groups-fn #(sort (fn [[_ _ cnt1] [_ _ cnt2]] (> cnt1 cnt2)) %)
           to-id-and-str-fn      (fn [[id chr cnt]]
@@ -42,6 +42,7 @@
            ))))
 
 (defn resolution-return-equal [sorted-seq-of-triplets]
+  """Replace the string ids for '=' in the first two triplets for a given character"""
   (if (> (count sorted-seq-of-triplets) 1)
     (let [[_ chr cnt1] (first sorted-seq-of-triplets)
           [_ _   cnt2] (second sorted-seq-of-triplets)
@@ -52,6 +53,8 @@
     sorted-seq-of-triplets))
 
 (defn resolution-return-list-of-ids [sorted-seq-of-triplets]
+  """Find which string ids are equal to the maximum of occurrences for a given character
+     and replace each of them with the list of all of them"""
   (if (> (count sorted-seq-of-triplets) 1)
     (let [[_ _ max-count]         (first sorted-seq-of-triplets)
           set-of-ids-with-max-cnt (atom #{})
@@ -68,10 +71,12 @@
 
 (defn mix
   ([s1 s2]
+   """Main entry point for the two argument call"""
    (let [mix-internal (mix-closure resolution-return-equal)]
       (mix-internal s1 s2)
       ))
   ([s1 s2 s3 & others]
+   """Main entry point for the multiple argument call"""
    (let [mix-internal (mix-closure resolution-return-list-of-ids)]
      (apply mix-internal (concat [s1 s2 s3] others))
      )))

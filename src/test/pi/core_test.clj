@@ -3,10 +3,6 @@
             [pi.core :refer :all]))
 
 
-(deftest str-to-char-count-test
-  (testing "Testing str-to-char-count"
-    (is (= (str-to-char-count "aabccc") '([\a 2] [\c 3])))))
-
 (deftest tag-test
   (testing "Testing tag"
     (is (= (tag 1 [[\a 2] [\b 1]]) '([1 \a 2] [1 \b 1])))))
