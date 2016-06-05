@@ -24,10 +24,10 @@
                                            (compare (str id1) (str id2)) ;(compare txt1 txt2)
                                            (> (count txt1) (count txt2)))) %)
           all-args              (concat [s1 s2] args)
-          all-args              (map #(clojure.string/replace % #"[^a-z]" "") all-args)
           all-args-count        (count all-args)
           ]
       (->> all-args
+           (map #(clojure.string/replace % #"[^a-z]" "") )
            (map str-to-char-count-and-tag (range 1 (inc all-args-count)))
            (apply concat)
            (group-by second)
