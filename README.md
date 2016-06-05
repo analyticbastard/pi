@@ -2,9 +2,14 @@
 
 Solutions to Pi exercises
 
+## Requisites
+
+You need the standard Clojure toolbelt, including [Leiningen](http://leiningen.org/).
+
+
 ## Usage
 
-To run the tests of the core logic components:
+To run the tests for the core logic components:
 
 ```lein test```
 
@@ -12,9 +17,12 @@ To run the web server:
 
 ```lein ring server```
 
-To interact with the server, you can use ```curl```:
+To interact with the server API, you can use ```curl```:
 
-````curl -X GET ""````
+````curl -X GET '{ "strings" : ["aaabbc" , "bbccd"] }'````
+
+You will get a JSON map with one entry called ```result``` containing
+the desired answer.
 
 ## License
 
