@@ -19,7 +19,7 @@ To run the web server:
 
 To interact with the server API, you can use ```curl```:
 
-````curl -X GET '{ "strings" : ["aaabbc" , "bbccd"] }'````
+````curl -X POST 'http://localhost:3000/mix' -d '{ "strings" : ["aaabbc" , "bbccd"] }'````
 
 You will get a JSON map with one entry called ```result``` containing
 the desired answer.
