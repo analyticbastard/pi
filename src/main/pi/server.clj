@@ -12,7 +12,7 @@
     (POST "/mix" request
       (let [strings (or (get-in request [:params :strings])
                         (get-in request [:body :strings]))]
-        (if (and strings (coll? strings))
+        (if (and strings (coll? strings) (> (count strings) 1))
           {:status 200
            :body   {:result (apply pi/mix strings)}}
           {:status 400
