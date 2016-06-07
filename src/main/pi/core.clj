@@ -21,7 +21,7 @@
                                   [id (clojure.string/join (repeat cnt chr))])
           sort-by-lengths-fn    #(sort (fn [[id1 txt1] [id2 txt2]]
                                          (if (= (count txt1) (count txt2))
-                                           (compare (str id1) (str id2)) ;(compare txt1 txt2)
+                                           (compare (str id1 txt1) (str id2 txt2))
                                            (> (count txt1) (count txt2)))) %)
           all-args              (concat [s1 s2] args)
           all-args-count        (count all-args)
