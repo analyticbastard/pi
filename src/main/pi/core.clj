@@ -83,13 +83,11 @@
      and replace each of them with the list of all of them"""
   (if (> (count sorted-seq-of-triplets) 1)
     (let [[_ _ max-count]         (first sorted-seq-of-triplets)
-          set-of-ids-with-max-cnt (atom #{})
-          _                       (doseq [[id _ cnt] sorted-seq-of-triplets]
-                                    (when (= cnt max-count)
-                                      (swap! set-of-ids-with-max-cnt conj id)))
+          triplets-with-max-freq  (filter (fn [[_ _ freq]] (= max-count freq)) sorted-seq-of-triplets)
+          set-of-ids-with-max-cnt (set (map first triplets-with-max-freq))
           id-to-list-of-ids-fn    (fn [[id chr cnt]]
-                                    (if (contains? @set-of-ids-with-max-cnt id)
-                                      [(clojure.string/join "," (sort @set-of-ids-with-max-cnt)) chr cnt]
+                                    (if (contains? set-of-ids-with-max-cnt id)
+                                      [(clojure.string/join "," (sort set-of-ids-with-max-cnt)) chr cnt]
                                       [id chr cnt]))
           ]
       (map id-to-list-of-ids-fn sorted-seq-of-triplets))
