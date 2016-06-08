@@ -31,7 +31,7 @@
 (defn transform-equal-frequency-ids [equal-count-resolution-fn id-char-freq-triplet-collection]
   (map equal-count-resolution-fn id-char-freq-triplet-collection))
 
-(defn transform-to-id-char-string-tuple [id-chr-cnt-triplet-collection]
+(defn transform-to-id-char-string-tuple-collection [id-chr-cnt-triplet-collection]
   (let [to-id-and-str-fn (fn [[id chr cnt]]
                            [id (clojure.string/join (repeat cnt chr))])
         ]
@@ -42,7 +42,7 @@
     (compare (str id1 txt1) (str id2 txt2))
     (> (count txt1) (count txt2))))
 
-(defn id-char-string-tuple-collection-to-final-string-result [id-char-string-tuple-collection]
+(defn transform-id-char-string-tuple-collection-to-final-string-result [id-char-string-tuple-collection]
   (->> id-char-string-tuple-collection
        (map #(clojure.string/join ":" %))
        (clojure.string/join "/")))
@@ -54,7 +54,7 @@
     (let [all-args                (concat [s1 s2] args)
           transform-ids           #(transform-equal-frequency-ids equal-count-resolution-fn %)
           take-most-frequent-only #(map first %)
-          sort-by-lengths-fn      #(sort comparator-fn %)
+          sort-by-lengths         #(sort comparator-fn %)
           ]
       (->> all-args
            remove-non-lowercase
@@ -62,9 +62,9 @@
            sort-most-frequent-first
            transform-ids
            take-most-frequent-only
-           transform-to-id-char-string-tuple
-           sort-by-lengths-fn
-           id-char-string-tuple-collection-to-final-string-result
+           transform-to-id-char-string-tuple-collection
+           sort-by-lengths
+           transform-id-char-string-tuple-collection-to-final-string-result
            ))))
 
 (defn resolution-return-equal [sorted-seq-of-triplets]
