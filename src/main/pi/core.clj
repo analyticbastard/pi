@@ -25,7 +25,9 @@
          )))
 
 (defn sort-most-frequent-first [id-char-freq-triplet-collection]
-  (let [sort-within-groups-fn #(sort (fn [[_ _ cnt1] [_ _ cnt2]] (> cnt1 cnt2)) %)]
+  (let [comparator-by-count   (fn [[_ _ cnt1] [_ _ cnt2]] (> cnt1 cnt2))
+        sort-within-groups-fn (partial sort comparator-by-count)
+        ]
     (map sort-within-groups-fn id-char-freq-triplet-collection)))
 
 (defn transform-equal-frequency-ids [equal-count-resolution-fn id-char-freq-triplet-collection]
@@ -52,9 +54,9 @@
      number of occurrences"""
   (fn [s1 s2 & args]
     (let [all-args                (concat [s1 s2] args)
-          transform-ids           #(transform-equal-frequency-ids equal-count-resolution-fn %)
-          take-most-frequent-only #(map first %)
-          sort-by-lengths         #(sort comparator-fn %)
+          transform-ids           (partial transform-equal-frequency-ids equal-count-resolution-fn)
+          take-most-frequent-only (partial map first)
+          sort-by-lengths         (partial sort comparator-fn)
           ]
       (->> all-args
            remove-non-lowercase
