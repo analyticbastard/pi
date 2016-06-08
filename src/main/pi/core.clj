@@ -12,33 +12,59 @@
        (remove #(<= (second %) 1))
        (tag tag-id)))
 
+(defn remove-non-lowercase [all-args]
+  (map #(clojure.string/replace % #"[^a-z]" "") all-args))
+
+(defn string-collection-to-id-char-freq-triplet-collection [all-args]
+  (let [all-args-count (count all-args)]
+    (->> all-args
+         (map str-to-char-count-and-tag (range 1 (inc all-args-count)))
+         (apply concat)
+         (group-by second)
+         (map second)
+         )))
+
+(defn sort-most-frequent-first [id-char-freq-triplet-collection]
+  (let [sort-within-groups-fn #(sort (fn [[_ _ cnt1] [_ _ cnt2]] (> cnt1 cnt2)) %)]
+    (map sort-within-groups-fn id-char-freq-triplet-collection)))
+
+(defn transform-equal-frequency-ids [equal-count-resolution-fn id-char-freq-triplet-collection]
+  (map equal-count-resolution-fn id-char-freq-triplet-collection))
+
+(defn transform-to-id-char-string-tuple [id-chr-cnt-triplet-collection]
+  (let [to-id-and-str-fn (fn [[id chr cnt]]
+                           [id (clojure.string/join (repeat cnt chr))])
+        ]
+    (map to-id-and-str-fn id-chr-cnt-triplet-collection)))
+
+(defn comparator-fn [[id1 txt1] [id2 txt2]]
+  (if (= (count txt1) (count txt2))
+    (compare (str id1 txt1) (str id2 txt2))
+    (> (count txt1) (count txt2))))
+
+(defn id-char-string-tuple-collection-to-final-string-result [id-char-string-tuple-collection]
+  (->> id-char-string-tuple-collection
+       (map #(clojure.string/join ":" %))
+       (clojure.string/join "/")))
+
 (defn mix-closure [equal-count-resolution-fn]
   """This is a closure which defines how we will output ids for characters with the same
      number of occurrences"""
   (fn [s1 s2 & args]
-    (let [sort-within-groups-fn #(sort (fn [[_ _ cnt1] [_ _ cnt2]] (> cnt1 cnt2)) %)
-          to-id-and-str-fn      (fn [[id chr cnt]]
-                                  [id (clojure.string/join (repeat cnt chr))])
-          sort-by-lengths-fn    #(sort (fn [[id1 txt1] [id2 txt2]]
-                                         (if (= (count txt1) (count txt2))
-                                           (compare (str id1 txt1) (str id2 txt2))
-                                           (> (count txt1) (count txt2)))) %)
-          all-args              (concat [s1 s2] args)
-          all-args-count        (count all-args)
+    (let [all-args                (concat [s1 s2] args)
+          transform-ids           #(transform-equal-frequency-ids equal-count-resolution-fn %)
+          take-most-frequent-only #(map first %)
+          sort-by-lengths-fn      #(sort comparator-fn %)
           ]
       (->> all-args
-           (map #(clojure.string/replace % #"[^a-z]" "") )
-           (map str-to-char-count-and-tag (range 1 (inc all-args-count)))
-           (apply concat)
-           (group-by second)
-           (map second)
-           (map sort-within-groups-fn)
-           (map equal-count-resolution-fn)
-           (map first)
-           (map to-id-and-str-fn)
+           remove-non-lowercase
+           string-collection-to-id-char-freq-triplet-collection
+           sort-most-frequent-first
+           transform-ids
+           take-most-frequent-only
+           transform-to-id-char-string-tuple
            sort-by-lengths-fn
-           (map #(clojure.string/join ":" %))
-           (clojure.string/join "/")
+           id-char-string-tuple-collection-to-final-string-result
            ))))
 
 (defn resolution-return-equal [sorted-seq-of-triplets]
